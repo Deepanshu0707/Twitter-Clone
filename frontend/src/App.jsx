@@ -23,14 +23,14 @@ function App() {
         if(!res.ok) throw new Error(data.error || "Something went wrong");  //Status Code 200-299
       
       console.log("Auth user is here", data);
-      return data;
+      return data; //
       } catch (error) {
         throw new Error(error);        
       }
     },
     retry: false,
   })
-
+ 
   if(isLoading){
     return(
       <div className="h-screen flex justify-center items-center">
