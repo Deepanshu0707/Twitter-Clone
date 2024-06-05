@@ -42,7 +42,7 @@ const Posts = ({feedType}) => {
 	useEffect(()=>{
 		refetch(); //Manually re-fetching Coz we are not getting posts data new so if we want as per the//
 					//feedType state change we re-render the component and again run useQuery.// 
-	},[feedType,])
+	},[feedType])
 	
 	return (
 		<>

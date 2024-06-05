@@ -5,19 +5,56 @@ import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import LoadingSpinner from "./LoadingSpinner";
 
 const Post = ({ post }) => {
 	const [comment, setComment] = useState("");
 	const postOwner = post.user;
+
+	const {data:authUser} = useQuery({queryKey:['authUser']});
+	const queryClient = useQueryClient();
+
 	const isLiked = false;
 
-	const isMyPost = true;
+	const isMyPost = authUser._id === postOwner._id;
 
 	const formattedDate = "1h";
 
 	const isCommenting = false;
 
-	const handleDeletePost = () => {};
+	const {mutate:deletePost, isPending} = useMutation({
+		mutationFn: async ()=>{
+			try {
+				const res = await fetch(`/api/posts/${post._id}`,{
+					method: "DELETE",
+
+				});
+
+				const data = await res.json();
+
+				if(!res.ok){
+					throw new Error(data.error || "Something went wrong");
+				}
+				return data;
+			} catch (error) {
+				throw new Error(error);
+			}
+		},
+		onSuccess: ()=>{
+			toast.success("Post deleted successfully");
+			//Invalidate the query for refetch data;
+			queryClient.invalidateQueries({queryKey: ["posts"]});
+		}
+
+		
+	})
+
+
+	const handleDeletePost = () => {
+		deletePost();
+	};
 
 	const handlePostComment = (e) => {
 		e.preventDefault();
@@ -44,10 +81,15 @@ const Post = ({ post }) => {
 							<span>{formattedDate}</span>
 						</span>
 						{isMyPost && (
+							
 							<span className='flex justify-end flex-1'>
-								<FaTrash className='cursor-pointer hover:text-red-500' onClick={handleDeletePost} />
+							{!isPending && <FaTrash className='cursor-pointer hover:text-red-500' onClick={handleDeletePost} /> }
 							</span>
+							
 						)}
+
+
+						{isPending && <LoadingSpinner size="sm" />}
 					</div>
 					<div className='flex flex-col gap-3 overflow-hidden'>
 						<span>{post.text}</span>
