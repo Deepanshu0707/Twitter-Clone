@@ -19,7 +19,16 @@ function App() {
       try {
         const res = await fetch("/api/auth/me");
         const data = await res.json();
-        if(data.error) return null;
+        /*
+        The reason you can still access data.error in the try block is 
+        because the fetch API doesn't throw an error immediately and if we have a response with error object in it
+        we can access it in try block.
+        And One More reason is that if we don't put this line data.error then we will get one more issue which is 
+        we receive the data with a error object value which we don't want and by default any response which we get either
+        in try and catch block from backend comes in try block of frontend so that is why we are cross 
+        checking data.error
+        */
+        if(data.error) return null; 
         if(!res.ok) throw new Error(data.error || "Something went wrong");  //Status Code 200-299
       
       console.log("Auth user is here", data);
