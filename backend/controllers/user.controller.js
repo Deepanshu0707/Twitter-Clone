@@ -67,7 +67,6 @@ export const getSuggestedUsers = async (req,res) =>{
         const userId = req.user._id;
 
         const usersFollowedByMe = await User.findById(userId).select("following");
-
         const users = await User.aggregate([
             {
                 $match:{
