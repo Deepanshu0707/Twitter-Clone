@@ -105,9 +105,15 @@ export const likeUnlikePost = async(req,res)=>{
             // Unlike Post
             await Post.updateOne({_id:postId}, {$pull:{likes:userId}});
             await User.updateOne({_id:userId},{$pull:{likedPosts: postId}});
-            res.status(200).json({message: "Post unliked successfully"})
+            
+/* Note: In Simple words we fetch the 'Post' data in the starting then we are making changes so if we send 
+post.likes in response it will include that user coz it fetch the data already before the changes happens
+so we have to manually filter the Post so that we can send the update one likes array.
+*/
+            const updatedLikes = post.likes.filter((id)=> id.toString() !== userId.toString());
+            res.status(200).json(updatedLikes);
         } else{
-            post.likes.push(userId);
+            post.likes.push(userId); //In array we can only push and pull/push is typically use in database.
             await User.updateOne({_id: userId },{$push:{ likedPosts: postId} });
             await post.save();
 
@@ -117,7 +123,8 @@ export const likeUnlikePost = async(req,res)=>{
                 type: "like"
             })
             await notification.save();
-            res.status(200).json({message: "Post liked successfully"});
+            const updatedLikes = post.likes;
+            res.status(200).json(updatedLikes);
         }
 
     } catch (error) {

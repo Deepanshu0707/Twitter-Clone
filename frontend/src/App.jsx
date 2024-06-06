@@ -20,14 +20,14 @@ function App() {
         const res = await fetch("/api/auth/me");
         const data = await res.json();
         /*
-        The reason you can still access data.error in the try block is 
-        because the fetch API doesn't throw an error immediately and if we have a response with error object in it
-        we can access it in try block.
-        And One More reason is that if we don't put this line data.error then we will get one more issue which is 
-        we receive the data with a error object value which we don't want and by default any response which we get either
-        in try and catch block from backend comes in try block of frontend so that is why we are cross 
-        checking data.error
+    First thing is that any error object which is sent in response come inside the try block of frontend.
+    second that useQuery has inbuilt feature that if it receive a data from queryFn which value is error object
+    so it send it inside it error store and will not put new value of authUser and use it previous value which
+    is already in cache so to overcome this issue we are seeing data.error as we know any error object come 
+    inside the try block and we can check if we get data.error we will return null instead of getting the previous
+    data by defualt by useQuery.
         */
+        console.log(data);
         if(data.error) return null; 
         if(!res.ok) throw new Error(data.error || "Something went wrong");  //Status Code 200-299
       
