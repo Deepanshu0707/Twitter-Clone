@@ -79,8 +79,19 @@ export const commentOnPost = async (req,res)=>{
 
         post.comments.push(comment);
         await post.save();
+    
+        //We are fetching data after the new comment got saved so that we can populate on the new comment too//
+        // otherwise it only give all comments user before the new comment so that is why we do after save new comment//
+        const updatedPost = await Post.findById(postId).populate({
+            path: "user",
+            select: "-password"
+          })
+          .populate({
+            path: "comments.user",
+            select: "-password",
+          });
 
-        res.status(200).json(post);
+        res.status(200).json(updatedPost);
 
     } catch (error) {
         console.log("Error in commentOnPost Controller: ", error);
