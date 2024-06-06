@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
+import { formatPostDate } from "../../utils/date";
 
 const Post = ({ post }) => {
 	const [comment, setComment] = useState("");
@@ -20,9 +21,7 @@ const Post = ({ post }) => {
 
 	const isMyPost = authUser._id === postOwner._id;
 
-	const formattedDate = "1h";
-
-	
+	const formattedDate = formatPostDate(post.createdAt);
 
 	const {mutate:deletePost, isPending:isDeleting} = useMutation({
 		mutationFn: async ()=>{
@@ -108,7 +107,7 @@ const Post = ({ post }) => {
 			}
 		},
 		onSuccess: (updatedComments) => {
-			
+			//Bad UX using invalidateQueries
 			// queryClient.invalidateQueries({ queryKey: ["posts"] });
 			setComment("");
 			 queryClient.setQueryData(["posts"],(oldData)=>{
@@ -157,7 +156,7 @@ const Post = ({ post }) => {
 						</Link>
 						<span className='text-gray-700 flex gap-1 text-sm'>
 							<Link to={`/profile/${postOwner.username}`}>@{postOwner.username}</Link>
-							<span>·</span>
+							<span>.</span>
 							<span>{formattedDate}</span>
 						</span>
 						{isMyPost && (
