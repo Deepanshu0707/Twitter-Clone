@@ -80,6 +80,14 @@ export const commentOnPost = async (req,res)=>{
         post.comments.push(comment);
         await post.save();
     
+        const notification = new Notification({
+            from: userId,
+            to: post.user,
+            type: "comment"
+        })
+        await notification.save();
+
+
         //We are fetching data after the new comment got saved so that we can populate on the new comment too//
         // otherwise it only give all comments user before the new comment so that is why we do after save new comment//
         const updatedPost = await Post.findById(postId).populate({
