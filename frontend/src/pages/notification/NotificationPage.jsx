@@ -1,4 +1,7 @@
 import { Link } from "react-router-dom";
+import {toast} from "react-hot-toast";
+import {useQuery, useMutation, useQueryClient} from "@tanstack/react-query";
+
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 import { IoSettingsOutline } from "react-icons/io5";
@@ -6,41 +9,50 @@ import { FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
 import { FaCommentDots } from "react-icons/fa";
 
-const NotificationPage = () => {
-	const isLoading = false;
-	const notifications = [
-		{
-			_id: "1",
-			from: {
-				_id: "1",
-				username: "johndoe",
-				profileImg: "/avatars/boy2.png",
-			},
-			type: "follow",
-		},
-		{
-			_id: "2",
-			from: {
-				_id: "2",
-				username: "janedoe",
-				profileImg: "/avatars/girl1.png",
-			},
-			type: "like",
-		},
-        {
-			_id: "2",
-			from: {
-				_id: "2",
-				username: "janedoe",
-				profileImg: "/avatars/girl1.png",
-			},
-			type: "comment",
-		},
-	];
 
-	const deleteNotifications = () => {
-		alert("All notifications deleted");
-	};
+const NotificationPage = () => {
+	
+	const queryClient = useQueryClient();
+
+	const { data: notifications, isLoading } = useQuery({
+		queryKey: ["notifications"],
+		queryFn: async()=>{
+			try {
+				const res = await fetch("/api/notifications");
+				const data = await res.json();
+				if(!res.ok){
+					throw new Error(data.error || "Something went wrong");
+				}
+				return data;
+			} catch (error) {
+				throw new Error(error);
+			}
+		},
+	});
+
+	const {mutate: deleteNotifications} = useMutation({
+		mutationFn: async()=>{
+			try {
+				const res = await fetch("/api/notifications",{
+					method: "DELETE",
+				});
+				const data = await res.json();
+				if(!res.ok){
+					throw new Error(data.error || "Something went wrong");
+				}
+				return data;
+			} catch (error) {
+				throw new Error(error);
+			}
+		},
+		onSuccess: ()=>{
+			toast.success("Notification deleted successfully");
+			queryClient.invalidateQueries({queryKey: ["notifications"]});
+		},
+		onError: (error)=>{
+			toast.error(error.message);
+		},
+	});
 
 	return (
 		<>
@@ -56,7 +68,7 @@ const NotificationPage = () => {
 							className='dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52'
 						>
 							<li>
-								<a onClick={deleteNotifications}>Delete all notifications</a>
+								<a onClick={()=>deleteNotifications()}>Delete all notifications</a>
 							</li>
 						</ul>
 					</div>
@@ -72,7 +84,7 @@ const NotificationPage = () => {
 						<div className='flex gap-2 p-4'>
 							{notification.type === "follow" && <FaUser className='w-7 h-7 text-primary' />}
 							{notification.type === "like" && <FaHeart className='w-7 h-7 text-red-500' />}
-                            {notification.type === "comment" && <FaCommentDots className='w-7 h-7 text-gray-200' />}
+							{notification.type === "comment" && <FaCommentDots className='w-7 h-7 text-gray-200' />}
 							<Link to={`/profile/${notification.from.username}`}>
 								<div className='avatar'>
 									<div className='w-8 rounded-full'>
@@ -93,3 +105,4 @@ const NotificationPage = () => {
 };
 
 export default NotificationPage;
+
