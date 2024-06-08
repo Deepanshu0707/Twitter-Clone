@@ -3,27 +3,31 @@ import PostSkeleton from "../skeletons/PostSkeleton";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
-const Posts = ({feedType}) => {
+const Posts = ({feedType, username, userId}) => {
  
 	const getPostEndPoint = ()=>{
 		switch (feedType){
 			case "forYou":
 				return "/api/posts/all";
-			case "following" : 
-			return "api/posts/following";
+			case "following": 
+			return "/api/posts/following";
+			case "posts":
+				return `/api/posts/user/${username}`;
+			case "likes": 
+			 	return `/api/posts/likes/${userId}`;
 			default:
-				return "api/posts/all";
+				return "/api/posts/all";
 		}
-	}
+	};
 
-	const Post_EndPoint = getPostEndPoint();
+	const POST_ENDPOINT = getPostEndPoint();
 
 
 	const {data:posts, isLoading, refetch, isRefetching} = useQuery({
 		queryKey: ["posts"],
 		queryFn: async()=>{
 			try {
-				const res = await fetch(Post_EndPoint);
+				const res = await fetch(POST_ENDPOINT);
 				const data = await res.json();
 
 				if(!res.ok){
@@ -42,11 +46,11 @@ const Posts = ({feedType}) => {
 	useEffect(()=>{
 		refetch(); //Manually re-fetching Coz we are not getting posts data new so if we want as per the//
 					//feedType state change we re-render the component and again run useQuery.// 
-	},[feedType])
+	},[feedType, username, userId]);
 	
 	return (
 		<>
-			{(isLoading || isRefetching)&& (
+			{(isLoading || isRefetching) && (
 				<div className='flex flex-col justify-center'>
 					<PostSkeleton />
 					<PostSkeleton />
