@@ -25,7 +25,7 @@ const useFollow = ()=>{
         means it wait for both the promises to complete then the main promise resolve*/
             Promise.all([
                 queryClient.invalidateQueries({queryKey: ["suggestedUsers"]}),
-                queryClient.invalidateQueries({queryKey: ["authUser"]})
+                queryClient.invalidateQueries({queryKey: ["authUser"]}),
             ])
         },
         onError: (error) => {
