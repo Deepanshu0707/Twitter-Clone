@@ -55,9 +55,9 @@ function App() {
      <div className="flex max-w-6xl mx-auto">
       {authUser ? <Sidebar/> : ""}
       <Routes>
-        <Route path="/home" element={authUser ? <HomePage /> : <Navigate to="/login" /> } />
-        <Route path="/login" element={!authUser ? <LoginPage /> :<Navigate to="/home" />} />
-        <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/home" />} />
+        <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" /> } />
+        <Route path="/login" element={!authUser ? <LoginPage /> :<Navigate to="/" />} />
+        <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
         <Route path="/notifications" element={authUser ? <NotificationPage /> : <Navigate to="/login" />} />
         <Route path="/profile/:username" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
         
